@@ -8,13 +8,6 @@ from datetime import datetime
 import json
 
 
-def driver_setup():
-    options = Options()
-    options.add_argument('--headless') #работа в фоновом режиме
-    service = Service('C:/chromedriver/chromedriver.exe')
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
-
 def merge_dicts(data_dicts):
     merged_dict = {"web-of-science": {}}
     for current_dict in data_dicts:
@@ -25,7 +18,7 @@ def merge_dicts(data_dicts):
 
 def parse_data(year):
     url = 'https://science.nsu.ru/publication-analytics?action=web-of-science&years={}%2C{}'.format(year, year)
-    driver = driver_setup()
+    driver = webdriver.Chrome()
     try:
         driver.get(url)
         WebDriverWait(driver, 10).until(expected_conditions.presence_of_element_located((By.XPATH, '//*[@id="tree"]')))
