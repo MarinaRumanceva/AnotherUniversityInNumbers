@@ -49,7 +49,6 @@ def parse_data(year, driver):
         WebDriverWait(driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, '//*[@id="tree"]')))
     except Exception as e:
         print('Failed to load page: {}'.format(e))
-        driver.quit()
         return {}
 
     d = {year: {}}
