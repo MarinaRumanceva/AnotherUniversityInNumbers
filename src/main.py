@@ -1,57 +1,17 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions
-import time
-from datetime import datetime
-import json
+import random
+from funcs_for_parse import *
 
+print('Please enter the path to the chromedriver:')
+path_to_driver = input()
+driver = driver_setup(path_to_driver)
 
-def merge_dicts(data_dicts):
-    merged_dict = {"web-of-science": {}}
-    for current_dict in data_dicts:
-        for year, values in current_dict.items():
-            merged_dict["web-of-science"][year] = values
-    return merged_dict
+data_dicts = []
+for year in range(2020, 2025):
+    data_dicts.append(parse_data(year, driver))
+    time.sleep(random.uniform(1, 3))
+driver.quit()
+data = merge_dicts(data_dicts)
 
-
-def parse_data(year):
-    url = 'https://science.nsu.ru/publication-analytics?action=web-of-science&years={}%2C{}'.format(year, year)
-    driver = webdriver.Chrome()
-    try:
-        driver.get(url)
-        WebDriverWait(driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, '//*[@id="tree"]')))
-    except Exception as e:
-        print('Failed to load page: {}'.format(e))
-        driver.quit()
-        return {}
-
-    d = {year: {}}
-    for n in range(1, 61):
-        xpath_il1 = '//*[@id="tree"]/div[{}]'.format(n)
-        item_level_1 = WebDriverWait(driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, xpath_il1)))
-        department = (item_level_1.find_element(By.TAG_NAME, 'a')).text
-        number = (item_level_1.find_element(By.TAG_NAME, 'span')).text
-        if not(department and number):
-            item_level_1 = driver.find_element(By.XPATH, xpath_il1)
-            time.sleep(1)
-            department = (item_level_1.find_element(By.TAG_NAME, 'a')).text
-            number = (item_level_1.find_element(By.TAG_NAME, 'span')).text
-        d[year][department] = number
-    driver.quit()
-    return d
-
-
-if __name__ == '__main__':
-    data_dicts = []
-    for year in range(2020, 2025):
-        data_dicts.append(parse_data(year))
-    data = merge_dicts(data_dicts)
-
-    print('Please enter the path to the directory where the the resulting file will be saved.')
-    dr = input()
-    file_path = dr.strip() + '\\' + ((datetime.today()).isoformat()).replace(':', '-') + '.json'
-    with open(file_path, 'w', encoding='utf-8') as json_file:
-        json.dump(data, json_file, ensure_ascii=False)
+print('Please enter the path to the directory where the resulting file will be saved:')
+name_of_dir = input()
+writing_answer(name_of_dir, data)
