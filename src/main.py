@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+import time
 from datetime import datetime
 import json
 
@@ -21,7 +22,7 @@ def parse_data(year):
     driver = webdriver.Chrome()
     try:
         driver.get(url)
-        WebDriverWait(driver, 10).until(expected_conditions.presence_of_element_located((By.XPATH, '//*[@id="tree"]')))
+        WebDriverWait(driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, '//*[@id="tree"]')))
     except Exception as e:
         print('Failed to load page: {}'.format(e))
         driver.quit()
@@ -30,15 +31,15 @@ def parse_data(year):
     d = {year: {}}
     for n in range(1, 61):
         xpath_il1 = '//*[@id="tree"]/div[{}]'.format(n)
-        try:
+        item_level_1 = WebDriverWait(driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, xpath_il1)))
+        department = (item_level_1.find_element(By.TAG_NAME, 'a')).text
+        number = (item_level_1.find_element(By.TAG_NAME, 'span')).text
+        if not(department and number):
             item_level_1 = driver.find_element(By.XPATH, xpath_il1)
+            time.sleep(1)
             department = (item_level_1.find_element(By.TAG_NAME, 'a')).text
             number = (item_level_1.find_element(By.TAG_NAME, 'span')).text
-            d[year][department] = number
-        except Exception as e:
-            print('An error occurred: {}'.format(e))
-            driver.quit()
-            return {}
+        d[year][department] = number
     driver.quit()
     return d
 
