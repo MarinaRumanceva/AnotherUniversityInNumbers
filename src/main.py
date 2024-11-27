@@ -52,7 +52,5 @@ if __name__ == '__main__':
     print('Please enter the path to the directory where the the resulting file will be saved.')
     dr = input()
     file_path = dr.strip() + '\\' + ((datetime.today()).isoformat()).replace(':', '-') + '.json'
-    with open(file_path, 'w') as json_file:
-        json.dump(data, json_file)
-
-
+    with open(file_path, 'w', encoding='utf-8') as json_file:
+        json.dump(data, json_file, ensure_ascii=False)
