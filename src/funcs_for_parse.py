@@ -12,7 +12,7 @@ import json
 def driver_setup(path_to_driver):
     service = Service(path_to_driver)
     options = Options()
-    options.add_argument('--headless') #работа драйвера в фоновом режиме
+    options.add_argument('--headless')
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
@@ -41,24 +41,60 @@ def get_department_number(item_level):
         return None, None
 
 
+def get_items(item_level, item_level_number):
+    items = item_level.find_elements(By.CLASS_NAME, 'item-level-{}'.format(item_level_number))
+    return items
+
+
+def get_arrow(item_level):
+    try:
+        arrow = item_level.find_element(By.CLASS_NAME, 'arrow')
+        if arrow:
+            return arrow
+        else:
+            return None
+    except Exception:
+        return None
+
+
+def parse_items(items, item_level_number):
+    d = {}
+    for item_level in items:
+        department, number = None, None
+        retries = 10
+        while retries > 0:
+            department, number = get_department_number(item_level)
+            if department is None:
+                time.sleep(1)
+            else:
+                break
+            retries -= 1
+        if department is not None:
+            d[department] = {'number': number}
+        else:
+            pass
+        arrow = get_arrow(item_level)
+        if arrow is not None:
+            arrow.click()
+        nested_items = get_items(item_level, item_level_number + 1)
+        if len(nested_items) != 0:
+            nested_d = parse_items(nested_items, item_level_number + 1)
+            d[department]['items'] = nested_d
+    return d
+
 
 def parse_data(year, driver):
     url = 'https://science.nsu.ru/publication-analytics?action=web-of-science&years={}%2C{}'.format(year, year)
     try:
         driver.get(url)
-        WebDriverWait(driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, '//*[@id="tree"]')))
     except Exception as e:
-        print('Failed to load page: {}'.format(e))
+        print('Failed to open page: {}'.format(e))
         return {}
 
     d = {year: {}}
-    for n in range(1, 61):
-        xpath_il1 = '//*[@id="tree"]/div[{}]'.format(n)
-        item_level_1 = WebDriverWait(driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, xpath_il1)))
-        department, number = get_department_number(item_level_1)
-        if (department == None) and (number == None):
-            item_level_1 = driver.find_element(By.XPATH, xpath_il1)
-            time.sleep(1)
-            department, number = get_department_number(item_level_1)
-        d[year][department] = number
+    xpath_tree_items = '//*[@id="tree"]'
+    tree_items = WebDriverWait(driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, xpath_tree_items)))
+    items = get_items(tree_items, 1)
+    d[year] = parse_items(items, 1)
+
     return d
