@@ -26,7 +26,7 @@ def merge_dicts(data_dicts):
 
 
 def writing_answer(name_of_dir, data):
-    file_path = name_of_dir.strip() + '\\parse_NGU_' + ((datetime.today()).isoformat()).replace(':', '-') + '.json'
+    file_path = name_of_dir.strip() + '/parse_NGU_' + ((datetime.today()).isoformat()).replace(':', '-') + '.json'
     with open(file_path, 'w', encoding='utf-8') as json_file:
         json.dump(data, json_file, ensure_ascii=False)
     return
@@ -41,11 +41,6 @@ def get_department_number(item_level):
         return None, None
 
 
-def get_items(item_level, item_level_number):
-    items = item_level.find_elements(By.CLASS_NAME, 'item-level-{}'.format(item_level_number))
-    return items
-
-
 def get_arrow(item_level):
     try:
         arrow = item_level.find_element(By.CLASS_NAME, 'arrow')
@@ -55,6 +50,11 @@ def get_arrow(item_level):
             return None
     except Exception:
         return None
+
+
+def get_items(item_level, item_level_number):
+    items = item_level.find_elements(By.CLASS_NAME, 'item-level-{}'.format(item_level_number))
+    return items
 
 
 def parse_items(items, item_level_number):
@@ -93,7 +93,12 @@ def parse_data(year, driver):
 
     d = {year: {}}
     xpath_tree_items = '//*[@id="tree"]'
-    tree_items = WebDriverWait(driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, xpath_tree_items)))
+    try:
+        tree_items = WebDriverWait(driver, 10).until(expected_conditions.visibility_of_element_located((By.XPATH, xpath_tree_items)))
+    except Exception as e:
+        print('Failed to load: {}'.format(e))
+        return {}
+
     items = get_items(tree_items, 1)
     d[year] = parse_items(items, 1)
 
