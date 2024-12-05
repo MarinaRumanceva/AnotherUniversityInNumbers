@@ -17,11 +17,11 @@ def driver_setup(path_to_driver):
     return driver
 
 
-def merge_dicts(data_dicts):
-    merged_dict = {"web-of-science": {}}
+def merge_dicts(data_dicts, search_parameter):
+    merged_dict = {search_parameter: {}}
     for current_dict in data_dicts:
         for year, values in current_dict.items():
-            merged_dict["web-of-science"][year] = values
+            merged_dict[search_parameter][year] = values
     return merged_dict
 
 
@@ -83,14 +83,14 @@ def parse_items(items, item_level_number):
     return d
 
 
-def parse_data(year, driver):
-    url = 'https://science.nsu.ru/publication-analytics?action=web-of-science&years={}%2C{}'.format(year, year)
+def parse_data(year, driver, search_parameter):
+    url = 'https://science.nsu.ru/publication-analytics?action={}&years={}%2C{}'.format(search_parameter, year, year)
     try:
         driver.get(url)
     except Exception as e:
         try:
             driver.refresh()
-            parse_data(year, driver)
+            parse_data(year, driver, search_parameter)
         except Exception as e:
             print('Failed to open page: {}'.format(e))
             return {}
