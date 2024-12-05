@@ -88,12 +88,8 @@ def parse_data(year, driver, search_parameter):
     try:
         driver.get(url)
     except Exception as e:
-        try:
-            driver.refresh()
-            parse_data(year, driver, search_parameter)
-        except Exception as e:
-            print('Failed to open page: {}'.format(e))
-            return {}
+        print('Failed to open page: {}'.format(e))
+        return {}
 
     d = {year: {}}
     xpath_tree_items = '//*[@id="tree"]'
