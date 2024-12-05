@@ -35,4 +35,4 @@ data = merge_dicts(data_dicts, search_parameter)
 #print('Please enter the path to the directory where the resulting file will be saved:')
 #name_of_dir = input()
 name_of_dir = 'C:/Users/marin/OneDrive/Рабочий стол/Result'
-writing_answer(name_of_dir, data)
+writing_answer(name_of_dir, search_parameter, data)

@@ -25,8 +25,8 @@ def merge_dicts(data_dicts, search_parameter):
     return merged_dict
 
 
-def writing_answer(name_of_dir, data):
-    file_path = name_of_dir.strip() + '/parse_NGU_' + ((datetime.today()).isoformat()).replace(':', '-') + '.json'
+def writing_answer(name_of_dir, search_parameter, data):
+    file_path = name_of_dir.strip() + '/' + search_parameter + '_' + ((datetime.today()).isoformat()).replace(':', '-') + '.json'
     with open(file_path, 'w', encoding='utf-8') as json_file:
         json.dump(data, json_file, ensure_ascii=False)
     return
