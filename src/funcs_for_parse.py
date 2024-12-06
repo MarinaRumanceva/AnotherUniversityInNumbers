@@ -16,7 +16,7 @@ def driver_setup(path_to_driver):
             path_to_driver (str): Путь к исполняемому файлу драйвера Chrome.
         Returns:
             webdriver.Chrome: Экземпляр веб-драйвера Chrome с заданными параметрами.
-        """
+    """
     service = Service(path_to_driver)
     options = Options()
     options.add_argument('--headless')
@@ -32,7 +32,7 @@ def merge_dicts(data_dicts, search_parameter):
             search_parameter (str): Параметр, который будет использоваться в качестве ключа в объединенном словаре.
         Returns:
             dict: Объединенный словарь с данными.
-        """
+    """
     merged_dict = {search_parameter: {}}
     for current_dict in data_dicts:
         for year, values in current_dict.items():
@@ -47,7 +47,7 @@ def writing_answer(name_of_dir, search_parameter, data):
             name_of_dir (str): Название директории, в которую будет сохранен файл.
             search_parameter (str): Параметр, который будет частью имени файла.
             data (dict): Данные, которые нужно сохранить в файл.
-        """
+    """
     file_path = name_of_dir.strip() + '/' + search_parameter + '_' + ((datetime.today()).isoformat()).replace(':', '-') + '.json'
     with open(file_path, 'w', encoding='utf-8') as json_file:
         json.dump(data, json_file, ensure_ascii=False)
@@ -61,7 +61,7 @@ def get_department_number(item_level):
             item_level (WebElement): Элемент, из которого нужно извлечь данные.
         Returns:
             Кортеж, содержащий название отдела и соответствующее ему число, или (None, None) если данные не найдены.
-        """
+    """
     department = item_level.find_element(By.TAG_NAME, 'a').text
     number = item_level.find_element(By.TAG_NAME, 'span').text
     if department and number:
@@ -77,7 +77,7 @@ def get_arrow(item_level):
             item_level (WebElement): Элемент, в котором нужно найти стрелку.
         Returns:
             WebElement or None: Элемент стрелки, если найден, иначе None.
-        """
+    """
     try:
         arrow = item_level.find_element(By.CLASS_NAME, 'arrow')
         if arrow:
@@ -93,22 +93,22 @@ def get_items(item_level, item_level_number):
         Извлекает элементы заданного уровня из элемента уровня.
         Args:
             item_level (WebElement): Элемент, из которого нужно извлечь элементы.
-            item_level_number (int): Номер уровня, элементы которого нужно извлечь.
+            item_level_number (int): Номер уровня извлекаемых элементов.
         Returns:
             list: Список найденных элементов.
-        """
+    """
     items = item_level.find_elements(By.CLASS_NAME, 'item-level-{}'.format(item_level_number))
     return items
 
 
 def parse_items(items, item_level_number):
     """
-    Обрабатывает список элементов, извлекая информацию о департаментах и их вложенных элементах.
-    Args:
-        items (list): Список элементов для обработки.
-        item_level_number (int): Номер уровня текущих элементов.
-    Returns:
-        dict: Словарь, содержащий информацию о департаментах и их вложенных элементах.
+        Обрабатывает список элементов, извлекая информацию о департаментах и их вложенных элементах.
+        Args:
+            items (list): Список элементов для обработки.
+            item_level_number (int): Номер уровня текущих элементов.
+        Returns:
+            dict: Словарь, содержащий информацию о департаментах и их вложенных элементах.
     """
     d = {}
     for item_level in items:
@@ -144,7 +144,7 @@ def parse_data(year, driver, search_parameter):
             search_parameter (str): Параметр для запроса данных на сайте.
         Returns:
             dict: Словарь с данными о публикациях за указанный год, или пустой словарь в случае ошибки.
-        """
+    """
     url = 'https://science.nsu.ru/publication-analytics?action={}&years={}%2C{}'.format(search_parameter, year, year)
     try:
         driver.get(url)
